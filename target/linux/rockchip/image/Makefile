@@ -44,7 +44,6 @@ define Device/Default
   BOOT_SCRIPT := rockchip
   IMAGES := sysupgrade.img.gz
   IMAGE/sysupgrade.img.gz := boot-common | boot-script $$(BOOT_SCRIPT) | pine64-img | gzip | append-metadata
-  DEVICE_DTS_DIR := ../dts
   SOC := rk3399
 endef
 
