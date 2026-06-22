@@ -5,7 +5,7 @@
  */
 
 /dts-v1/;
-#include "rk3399.dtsi"
+#include "rockchip/rk3399.dtsi"
 // OPP table from kernel built-in
 
 / {
