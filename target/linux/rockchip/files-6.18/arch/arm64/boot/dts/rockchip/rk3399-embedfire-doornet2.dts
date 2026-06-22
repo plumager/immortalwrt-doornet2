@@ -1,14 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 /*
  * Device Tree Source for EmbedFire DoorNet2
- *
- * Based on Rockchip RK3399
- * SoC: RK3399 (Dual Cortex-A72 @1.8GHz + Quad Cortex-A53 @1.4GHz)
- * RAM: 1GB Dual-Channel DDR3
- * Storage: 8GB eMMC
- * Network: 2x Gigabit Ethernet (GMAC + PCIe RTL8168)
- * WiFi: USB2.0 802.11ac (optional)
- * USB: 2x USB3.0 Type-A
+ * SoC: Rockchip RK3399
  */
 
 /dts-v1/;
@@ -24,7 +17,6 @@
 		bootargs = "earlycon=uart8250,mmio32,0xff1a0000";
 	};
 
-	/* LEDs: P=Power, S=System, W/L=Network status */
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
@@ -55,7 +47,6 @@
 		};
 	};
 
-	/* Buttons: Flash(F) for recovery, Reset(R) */
 	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
@@ -77,7 +68,6 @@
 		};
 	};
 
-	/* Fan header (PWM) - on fan version only */
 	fan: pwm-fan {
 		compatible = "pwm-fan";
 		pwms = <&pwm1 0 10000 0>;
@@ -85,7 +75,6 @@
 		#cooling-cells = <2>;
 	};
 
-	/* Regulators */
 	vcc3v3_sys: vcc3v3-sys {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc3v3_sys";
@@ -115,43 +104,15 @@
 		regulator-always-on;
 		vin-supply = <&vcc5v0_sys>;
 	};
-
-	vdd_log: vdd-log {
-		compatible = "pwm-regulator";
-		pwms = <&pwm2 0 25000 1>;
-		regulator-name = "vdd_log";
-		regulator-min-microvolt = <800000>;
-		regulator-max-microvolt = <1400000>;
-		regulator-always-on;
-		regulator-boot-on;
-	};
 };
 
-&cpu_l0 {
-	cpu-supply = <&vdd_cpu_b>;
-};
+&cpu_l0 { cpu-supply = <&vdd_cpu_b>; };
+&cpu_l1 { cpu-supply = <&vdd_cpu_b>; };
+&cpu_l2 { cpu-supply = <&vdd_cpu_b>; };
+&cpu_l3 { cpu-supply = <&vdd_cpu_b>; };
+&cpu_b0 { cpu-supply = <&vdd_cpu_b>; };
+&cpu_b1 { cpu-supply = <&vdd_cpu_b>; };
 
-&cpu_l1 {
-	cpu-supply = <&vdd_cpu_b>;
-};
-
-&cpu_l2 {
-	cpu-supply = <&vdd_cpu_b>;
-};
-
-&cpu_l3 {
-	cpu-supply = <&vdd_cpu_b>;
-};
-
-&cpu_b0 {
-	cpu-supply = <&vdd_cpu_b>;
-};
-
-&cpu_b1 {
-	cpu-supply = <&vdd_cpu_b>;
-};
-
-/* eMMC - 8GB onboard storage */
 &sdmmc {
 	bus-width = <4>;
 	cap-mmc-highspeed;
@@ -164,7 +125,6 @@
 	status = "okay";
 };
 
-/* eMMC */
 &sdhci {
 	bus-width = <8>;
 	mmc-hs200-1_8v;
@@ -172,7 +132,6 @@
 	status = "okay";
 };
 
-/* GMAC - eth0 (Native) */
 &gmac {
 	assigned-clocks = <&cru SCLK_RMII_SRC>;
 	assigned-clock-parents = <&clkin_gmac>;
@@ -189,7 +148,6 @@
 	status = "okay";
 };
 
-/* PCIe - eth1 (RTL8168 Gigabit) */
 &pcie0 {
 	ep-gpios = <&gpio2 RK_PD4 GPIO_ACTIVE_HIGH>;
 	num-lanes = <1>;
@@ -198,61 +156,19 @@
 	status = "okay";
 };
 
-/* USB 3.0 Host controllers */
-&usb_host0_ehci {
-	status = "okay";
-};
+&usb_host0_ehci { status = "okay"; };
+&usb_host0_ohci { status = "okay"; };
+&usb_host1_ehci { status = "okay"; };
+&usb_host1_ohci { status = "okay"; };
+&usbdrd3_0 { status = "okay"; };
+&usbdrd_dwc3_0 { dr_mode = "host"; status = "okay"; };
+&usbdrd3_1 { status = "okay"; };
+&usbdrd_dwc3_1 { dr_mode = "host"; status = "okay"; };
+&uart2 { status = "okay"; };
+&pwm1 { status = "okay"; };
+&pwm2 { status = "okay"; };
+&spi1 { status = "okay"; };
 
-&usb_host0_ohci {
-	status = "okay";
-};
-
-&usb_host1_ehci {
-	status = "okay";
-};
-
-&usb_host1_ohci {
-	status = "okay";
-};
-
-&usbdrd3_0 {
-	status = "okay";
-};
-
-&usbdrd_dwc3_0 {
-	dr_mode = "host";
-	status = "okay";
-};
-
-&usbdrd3_1 {
-	status = "okay";
-};
-
-&usbdrd_dwc3_1 {
-	dr_mode = "host";
-	status = "okay";
-};
-
-/* UART2 - Debug console */
-&uart2 {
-	status = "okay";
-};
-
-/* PWM1 - Fan control */
-&pwm1 {
-	status = "okay";
-};
-
-/* PWM2 - CPU logic voltage */
-&pwm2 {
-	status = "okay";
-};
-
-&spi1 {
-	status = "okay";
-};
-
-/* I2C for PMIC and EEPROM */
 &i2c0 {
 	status = "okay";
 	i2c-scl-rising-time-ns = <168>;
@@ -270,10 +186,7 @@
 		regulator-always-on;
 		regulator-boot-on;
 		vin-supply = <&vcc5v0_sys>;
-
-		regulator-state-mem {
-			regulator-off-in-suspend;
-		};
+		regulator-state-mem { regulator-off-in-suspend; };
 	};
 
 	vdd_gpu: regulator@41 {
@@ -287,10 +200,7 @@
 		regulator-always-on;
 		regulator-boot-on;
 		vin-supply = <&vcc5v0_sys>;
-
-		regulator-state-mem {
-			regulator-off-in-suspend;
-		};
+		regulator-state-mem { regulator-off-in-suspend; };
 	};
 
 	rk808: pmic@1b {
@@ -327,11 +237,8 @@
 				regulator-ramp-delay = <6001>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
+				regulator-state-mem { regulator-off-in-suspend; };
 			};
-
 			vdd_cpu_l: DCDC_REG2 {
 				regulator-name = "vdd_cpu_l";
 				regulator-min-microvolt = <750000>;
@@ -339,20 +246,14 @@
 				regulator-ramp-delay = <6001>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
+				regulator-state-mem { regulator-off-in-suspend; };
 			};
-
 			vcc_ddr: DCDC_REG3 {
 				regulator-name = "vcc_ddr";
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-on-in-suspend;
-				};
+				regulator-state-mem { regulator-on-in-suspend; };
 			};
-
 			vcc_1v8: DCDC_REG4 {
 				regulator-name = "vcc_1v8";
 				regulator-min-microvolt = <1800000>;
@@ -364,29 +265,20 @@
 					regulator-suspend-microvolt = <1800000>;
 				};
 			};
-
 			vcc1v8_dvp: LDO_REG1 {
 				regulator-name = "vcc1v8_dvp";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
 			};
-
 			vcc3v0_tp: LDO_REG2 {
 				regulator-name = "vcc3v0_tp";
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
 			};
-
 			vcc1v8_pmu: LDO_REG3 {
 				regulator-name = "vcc1v8_pmu";
 				regulator-min-microvolt = <1800000>;
@@ -398,82 +290,43 @@
 					regulator-suspend-microvolt = <1800000>;
 				};
 			};
-
 			vccio_sd: LDO_REG4 {
 				regulator-name = "vccio_sd";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-on-in-suspend;
-					regulator-suspend-microvolt = <3300000>;
-				};
 			};
-
 			vcca3v0_codec: LDO_REG5 {
 				regulator-name = "vcca3v0_codec";
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
 			};
-
 			vcc_1v5: LDO_REG6 {
 				regulator-name = "vcc_1v5";
 				regulator-min-microvolt = <1500000>;
 				regulator-max-microvolt = <1500000>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-on-in-suspend;
-					regulator-suspend-microvolt = <1500000>;
-				};
 			};
-
 			vcca1v8_codec: LDO_REG7 {
 				regulator-name = "vcca1v8_codec";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
 			};
-
 			vcc_3v0: LDO_REG8 {
 				regulator-name = "vcc_3v0";
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3000000>;
 				regulator-always-on;
 				regulator-boot-on;
-				regulator-state-mem {
-					regulator-on-in-suspend;
-					regulator-suspend-microvolt = <3000000>;
-				};
 			};
-
-			vcc3v3_s3: SWITCH_REG1 {
-				regulator-name = "vcc3v3_s3";
-				regulator-always-on;
-				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
-			};
-
-			vcc3v3_s0: SWITCH_REG2 {
-				regulator-name = "vcc3v3_s0";
-				regulator-always-on;
-				regulator-boot-on;
-				regulator-state-mem {
-					regulator-off-in-suspend;
-				};
-			};
+			vcc3v3_s3: SWITCH_REG1 { regulator-name = "vcc3v3_s3"; regulator-always-on; regulator-boot-on; };
+			vcc3v3_s0: SWITCH_REG2 { regulator-name = "vcc3v3_s0"; regulator-always-on; regulator-boot-on; };
 		};
 	};
 };
@@ -484,7 +337,6 @@
 	i2c-scl-falling-time-ns = <15>;
 };
 
-/* IO domains */
 &io_domains {
 	status = "okay";
 	bt656-supply = <&vcc1v8_dvp>;
@@ -498,65 +350,27 @@
 	pmu1830-supply = <&vcc_1v8>;
 };
 
-/* TSADC - temperature sensor */
-&tsadc {
-	status = "okay";
-};
-
-&vopb {
-	status = "okay";
-};
-
-&vopb_mmu {
-	status = "okay";
-};
-
-&vopl {
-	status = "okay";
-};
-
-&vopl_mmu {
-	status = "okay";
-};
+&tsadc { status = "okay"; };
+&vopb { status = "okay"; };
+&vopb_mmu { status = "okay"; };
+&vopl { status = "okay"; };
+&vopl_mmu { status = "okay"; };
 
 &pinctrl {
 	leds {
-		led_power_pin: led-power-pin {
-			rockchip,pins = <2 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-
-		led_system_pin: led-system-pin {
-			rockchip,pins = <4 RK_PD2 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-
-		led_wan_pin: led-wan-pin {
-			rockchip,pins = <4 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-
-		led_lan_pin: led-lan-pin {
-			rockchip,pins = <4 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
+		led_power_pin: led-power-pin { rockchip,pins = <2 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>; };
+		led_system_pin: led-system-pin { rockchip,pins = <4 RK_PD2 RK_FUNC_GPIO &pcfg_pull_none>; };
+		led_wan_pin: led-wan-pin { rockchip,pins = <4 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>; };
+		led_lan_pin: led-lan-pin { rockchip,pins = <4 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>; };
 	};
-
 	keys {
-		flash_key_pin: flash-key-pin {
-			rockchip,pins = <0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_up>;
-		};
-
-		reset_key_pin: reset-key-pin {
-			rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_up>;
-		};
+		flash_key_pin: flash-key-pin { rockchip,pins = <0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_up>; };
+		reset_key_pin: reset-key-pin { rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_up>; };
 	};
-
 	pmic {
-		pmic_int_l: pmic-int-l {
-			rockchip,pins = <1 RK_PC5 RK_FUNC_GPIO &pcfg_pull_up>;
-		};
+		pmic_int_l: pmic-int-l { rockchip,pins = <1 RK_PC5 RK_FUNC_GPIO &pcfg_pull_up>; };
 	};
-
 	usb2 {
-		vcc5v0_host_en: vcc5v0-host-en {
-			rockchip,pins = <4 RK_PD1 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
+		vcc5v0_host_en: vcc5v0-host-en { rockchip,pins = <4 RK_PD1 RK_FUNC_GPIO &pcfg_pull_none>; };
 	};
 };
