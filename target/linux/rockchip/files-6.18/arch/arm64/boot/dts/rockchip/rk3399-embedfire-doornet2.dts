@@ -6,6 +6,7 @@
 
 /dts-v1/;
 #include "rk3399.dtsi"
+#include <dt-bindings/input/linux-event-codes.h>
 // OPP table from kernel built-in
 
 / {
