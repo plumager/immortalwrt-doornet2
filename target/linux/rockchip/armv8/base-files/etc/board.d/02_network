@@ -1,0 +1,83 @@
+. /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
+
+rockchip_setup_interfaces()
+{
+	local board="$1"
+
+	case "$board" in
+	embedfire,doornet2)
+		ucidef_set_interfaces_lan_wan 'eth1' 'eth0'
+		;;
+	9tripod,x3568-v4|\
+	ariaboard,photonicat|\
+	ariaboard,photonicat2|\
+	armsom,sige7|\
+	ezpro,mrkaio-m68s|\
+	firefly,rk3568-roc-pc|\
+	friendlyarm,nanopi-m5|\
+	friendlyarm,nanopi-r2c|\
+	friendlyarm,nanopi-r2c-plus|\
+	friendlyarm,nanopi-r2s|\
+	friendlyarm,nanopi-r3s|\
+	friendlyarm,nanopi-r4s|\
+	friendlyarm,nanopi-r4se|\
+	friendlyarm,nanopi-r4s-enterprise|\
+	friendlyarm,nanopi-r6c|\
+	radxa,rockpi-e|\
+	xunlong,orangepi-r1-plus|\
+	xunlong,orangepi-r1-plus-lts)
+		ucidef_set_interfaces_lan_wan 'eth1' 'eth0'
+		;;
+	armsom,sige3|\
+	friendlyarm,nanopi-r5c|\
+	friendlyarm,nanopi-r76s|\
+	lunzn,fastrhino-r66s|\
+	mmbox,anas3035|\
+	nlnet,xiguapi-v3|\
+	radxa,e20c|\
+	radxa,e25|\
+	radxa,rock-3b|\
+	widora,mangopi-m28k|\
+	xunlong,orangepi-5-plus)
+		ucidef_set_interfaces_lan_wan 'eth0' 'eth1'
+		;;
+	*)
+		ucidef_set_interface_lan 'eth0'
+		;;
+	esac
+}
+
+rockchip_setup_macs()
+{
+	local board="$1"
+	local lan_mac=""
+	local wan_mac=""
+	local label_mac=""
+
+	case "$board" in
+	embedfire,doornet2)
+		wan_mac=$(macaddr_generate_from_mmc_cid mmcblk1)
+		lan_mac=$(macaddr_add "$wan_mac" 1)
+		;;
+	friendlyarm,nanopi-r4s|\
+	friendlyarm,nanopi-r2s|\
+	ariaboard,photonicat|\
+	*)
+		wan_mac=$(macaddr_generate_from_mmc_cid mmcblk1)
+		lan_mac=$(macaddr_add "$wan_mac" 1)
+		;;
+	esac
+
+	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
+	[ -n "$wan_mac" ] && ucidef_set_interface_macaddr "wan" $wan_mac
+	[ -n "$label_mac" ] && ucidef_set_label_macaddr $label_mac
+}
+
+board_config_update
+board=$(board_name)
+rockchip_setup_interfaces $board
+rockchip_setup_macs $board
+board_config_flush
+
+exit 0

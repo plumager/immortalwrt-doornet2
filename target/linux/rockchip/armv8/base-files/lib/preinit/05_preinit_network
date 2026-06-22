@@ -1,0 +1,17 @@
+. /lib/preinit/00_preinit.conf
+. /lib/functions.sh
+. /lib/functions/preinit.sh
+. /lib/functions/system.sh
+
+do_rockchip_board() {
+	set_preinit_iface
+
+	case $(board_name) in
+	embedfire,doornet2)
+		preinit_net_ethanolan="eth1"
+		preinit_net_ethowan="eth0"
+		;;
+	esac
+}
+
+boot_hook_add preinit_main do_rockchip_board

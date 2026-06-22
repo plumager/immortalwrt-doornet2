@@ -1,0 +1,108 @@
+# ImmortalWrt diffconfig for EmbedFire DoorNet2 (RK3399)
+# Copy to ImmortalWrt source tree as .config, then run make defconfig
+
+# Target system
+CONFIG_TARGET_rockchip=y
+CONFIG_TARGET_rockchip_armv8=y
+CONFIG_TARGET_rockchip_armv8_DEVICE_embedfire_doornet2=y
+
+# Kernel options
+CONFIG_KERNEL_IPV6=y
+CONFIG_KERNEL_IP_SET=y
+CONFIG_KERNEL_NET_SCHED=y
+CONFIG_KERNEL_NET_ACT_POLICE=y
+CONFIG_KERNEL_BRIDGE=y
+CONFIG_KERNEL_BRIDGE_NETFILTER=y
+CONFIG_KERNEL_CGROUP_HUGETLB=y
+CONFIG_KERNEL_CGROUP_PERF=y
+CONFIG_KERNEL_DEVTMPFS=y
+CONFIG_KERNEL_FHANDLE=y
+CONFIG_KERNEL_MEMCG=y
+CONFIG_KERNEL_NF_CONNTRACK=y
+CONFIG_KERNEL_NF_CONNTRACK_LABELS=y
+CONFIG_KERNEL_NF_CONNTRACK_ZONES=y
+CONFIG_KERNEL_NF_TABLES=y
+CONFIG_KERNEL_NF_TABLES_INET=y
+CONFIG_KERNEL_NF_TABLES_NETDEV=y
+CONFIG_KERNEL_POSIX_MQUEUE=y
+
+# Filesystem support
+CONFIG_TARGET_ROOTFS_PARTSIZE=512
+CONFIG_TARGET_KERNEL_PARTSIZE=64
+CONFIG_TARGET_ROOTFS_SQUASHFS=y
+
+# Network drivers
+CONFIG_PACKAGE_kmod-r8169=y
+CONFIG_PACKAGE_kmod-stp=y
+CONFIG_PACKAGE_kmod-br-netfilter=y
+CONFIG_PACKAGE_kmod-nf-nathelper=y
+CONFIG_PACKAGE_kmod-nf-nathelper-extra=y
+CONFIG_PACKAGE_kmod-ipt-offload=y
+
+# USB support
+CONFIG_PACKAGE_kmod-usb-core=y
+CONFIG_PACKAGE_kmod-usb-ehci=y
+CONFIG_PACKAGE_kmod-usb-ohci=y
+CONFIG_PACKAGE_kmod-usb-xhci-hcd=y
+CONFIG_PACKAGE_kmod-usb-storage=y
+CONFIG_PACKAGE_kmod-usb-storage-uas=y
+CONFIG_PACKAGE_kmod-usb3=y
+
+# WiFi support (for optional USB WiFi module)
+CONFIG_PACKAGE_kmod-cfg80211=y
+CONFIG_PACKAGE_kmod-mac80211=y
+CONFIG_PACKAGE_kmod-rtl8192cu=y
+CONFIG_PACKAGE_kmod-rtl8xxxu=y
+CONFIG_PACKAGE_hostapd-common=y
+CONFIG_PACKAGE_wpa_supplicant=y
+
+# Thermal / Fan control
+CONFIG_PACKAGE_kmod-pwm-fan=y
+CONFIG_PACKAGE_lm-sensors=y
+
+# Core utilities
+CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-ssl=y
+CONFIG_PACKAGE_luci-mod-admin-full=y
+CONFIG_PACKAGE_luci-theme-bootstrap=y
+CONFIG_PACKAGE_luci-app-firewall=y
+CONFIG_PACKAGE_luci-app-statistics=y
+CONFIG_PACKAGE_luci-app-turboacc=y
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-base=y
+CONFIG_PACKAGE_dropbear=y
+CONFIG_PACKAGE_firewall4=y
+CONFIG_PACKAGE_nftables=y
+
+# Network utilities
+CONFIG_PACKAGE_iperf3=y
+CONFIG_PACKAGE_tcpdump=y
+CONFIG_PACKAGE_mtr=y
+CONFIG_PACKAGE_bind-dig=y
+CONFIG_PACKAGE_iptables-nft=y
+
+# System tools
+CONFIG_PACKAGE_htop=y
+CONFIG_PACKAGE_nano=y
+CONFIG_PACKAGE_openssh-sftp-server=y
+CONFIG_PACKAGE_ethtool=y
+CONFIG_PACKAGE_cpufreq=y
+CONFIG_PACKAGE_coreutils=y
+
+# Storage / Filesystem tools
+CONFIG_PACKAGE_blkid=y
+CONFIG_PACKAGE_fdisk=y
+CONFIG_PACKAGE_lsblk=y
+CONFIG_PACKAGE_block-mount=y
+
+# Docker support (optional, enable as needed)
+# CONFIG_PACKAGE_docker-ce=y
+# CONFIG_PACKAGE_dockerd=y
+# CONFIG_PACKAGE_luci-app-dockerman=y
+
+# UTC timezone (can be changed after boot)
+CONFIG_SYSTEM_TZ=UTC
+
+# Default packages
+CONFIG_BUSYBOX_CONFIG_SVI=y
+CONFIG_BUSYBOX_CUSTOM=y
