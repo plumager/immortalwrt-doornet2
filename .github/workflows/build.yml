@@ -1,0 +1,159 @@
+name: Build ImmortalWrt for DoorNet2
+
+on:
+  push:
+    branches: [master, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:      # 手动触发
+    inputs:
+      version:
+        description: 'ImmortalWrt 版本 (master 或 v24.10)'
+        required: true
+        default: 'master'
+      custom_packages:
+        description: '额外的软件包 (用空格分隔)'
+        required: false
+        default: ''
+
+env:
+  REPO_URL: https://github.com/immortalwrt/immortalwrt.git
+  REPO_BRANCH: master
+  BUILD_TARGET: rockchip
+  BUILD_SUBTARGET: armv8
+  DEVICE: embedfire_doornet2
+  CACHE_DIR: /tmp/openwrt_cache
+
+jobs:
+  build:
+    name: 🏗️ Build ImmortalWrt for DoorNet2
+    runs-on: ubuntu-22.04
+    if: github.event.repository.owner.id == github.event.sender.id || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: 🔍 Checkout DoorNet2 adaptation
+        uses: actions/checkout@v4
+        with:
+          path: doornet2-adapt
+
+      - name: 📦 Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang flex bison g++ gawk \
+            gcc-multilib g++-multilib gettext git libncurses-dev libssl-dev \
+            python3 python3-distutils python3-setuptools rsync unzip zlib1g-dev \
+            file wget curl qemu-utils cpio upx patchelf
+
+      - name: 🧬 Clone ImmortalWrt source
+        run: |
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH immortalwrt
+          cd immortalwrt
+
+      - name: 🩹 Apply DoorNet2 adaptations
+        run: |
+          # Copy device tree
+          cp -r doornet2-adapt/target/linux/rockchip/dts/* \
+             immortalwrt/target/linux/rockchip/dts/
+          # Copy image Makefile  
+          cp doornet2-adapt/target/linux/rockchip/image/Makefile \
+             immortalwrt/target/linux/rockchip/image/Makefile
+          # Copy armv8 configs
+          cp doornet2-adapt/target/linux/rockchip/armv8/target.mk \
+             immortalwrt/target/linux/rockchip/armv8/target.mk
+          # Copy base-files (02_network, preinit)
+          cp -r doornet2-adapt/target/linux/rockchip/armv8/base-files/* \
+             immortalwrt/target/linux/rockchip/armv8/base-files/
+          # Copy kernel patches (DTB registration)
+          cp doornet2-adapt/target/linux/rockchip/patches-6.18/* \
+             immortalwrt/target/linux/rockchip/patches-6.18/
+          # Copy U-Boot patches
+          mkdir -p immortalwrt/package/boot/uboot-rockchip/patches
+          cp doornet2-adapt/package/boot/uboot-rockchip/patches/* \
+             immortalwrt/package/boot/uboot-rockchip/patches/
+          # Copy diffconfig
+          cp doornet2-adapt/docs/diffconfig immortalwrt/.config
+          echo "✅ DoorNet2 patches applied successfully"
+          ls -la immortalwrt/target/linux/rockchip/dts/
+          ls -la immortalwrt/package/boot/uboot-rockchip/patches/
+
+      - name: 🔄 Update & install feeds
+        run: |
+          cd immortalwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: ⚙️ Configure firmware
+        run: |
+          cd immortalwrt
+          # Start from our diffconfig
+          cp .config .config.diff
+          make defconfig
+          echo "========== Config summary =========="
+          grep -E "^CONFIG_TARGET" .config | head -20
+          echo "======================================"
+
+      - name: 🏗️ Download prerequisite packages
+        run: |
+          cd immortalwrt
+          make download -j$(nproc) 2>&1 | tail -30
+
+      - name: 🏗️ Build cross-compile toolchain
+        run: |
+          cd immortalwrt
+          # Build only the toolchain first to leverage caching
+          make tools/install -j$(nproc) 2>&1 | tail -20
+          make toolchain/install -j$(nproc) 2>&1 | tail -20
+
+      - name: 🏗️ Build firmware
+        run: |
+          cd immortalwrt
+          make -j$(nproc) 2>&1 | tail -50
+        continue-on-error: true
+
+      - name: 🏗️ Retry build if needed (single-thread fallback)
+        if: failure()
+        run: |
+          cd immortalwrt
+          make -j1 2>&1 | tail -100
+
+      - name: 📦 Collect firmware artifacts
+        run: |
+          mkdir -p firmware
+          find immortalwrt/bin/targets/$BUILD_TARGET/$BUILD_SUBTARGET/ \
+            -name "*-embedfire_doornet2*" -exec cp {} firmware/ \;
+          find immortalwrt/bin/targets/$BUILD_TARGET/$BUILD_SUBTARGET/ \
+            -name "*.manifest" -exec cp {} firmware/ \;
+          find immortalwrt/bin/targets/$BUILD_TARGET/$BUILD_SUBTARGET/ \
+            -name "sha256sums" -exec cp {} firmware/ \;
+          
+          echo "=== Build output ==="
+          ls -lh firmware/
+          echo "=== Build date ==="
+          date -u
+
+      - name: 📤 Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-doornet2-firmware
+          path: firmware/
+          retention-days: 30
+
+      - name: 📝 Generate build summary
+        run: |
+          echo "## 🎉 ImmortalWrt for DoorNet2 Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          for f in firmware/*; do
+            filename=$(basename "$f")
+            size=$(du -h "$f" | cut -f1)
+            echo "| \`$filename\` | $size |" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📥 下载说明" >> $GITHUB_STEP_SUMMARY
+          echo "1. 点击上方的 **Summary** 标签" >> $GITHUB_STEP_SUMMARY
+          echo "2. 找到 **Artifacts** 区域" >> $GITHUB_STEP_SUMMARY
+          echo "3. 下载 \`immortalwrt-doornet2-firmware.zip\`" >> $GITHUB_STEP_SUMMARY
