@@ -83,12 +83,10 @@ jobs:
         run: |
           cd immortalwrt
           # Set DoorNet2 as the only target device in config
-          # (insert-before.sh approach had issues with awk regex)
           make defconfig
           # Manually enable DoorNet2 device and disable others
           sed -i '/CONFIG_TARGET_rockchip_armv8_DEVICE_/d' .config
           echo 'CONFIG_TARGET_rockchip_armv8_DEVICE_embedfire_doornet2=y' >> .config
-          make olddefconfig
           echo "=== DEVICE ==="
           grep "DEVICE_embedfire_doornet2" .config || echo "WARNING: Not found"
 
