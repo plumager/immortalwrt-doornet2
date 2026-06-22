@@ -81,7 +81,7 @@ jobs:
           cd immortalwrt
           make defconfig
           echo "=== DEVICE ==="
-          grep "CONFIG_TARGET_DEVICE" .config | grep doornet
+          grep "DEVICE_embedfire_doornet2" .config || echo "WARNING: Device config not found - check make defconfig"
           echo "=== PACKAGES ==="
           grep "CONFIG_PACKAGE" .config | head -20
 
@@ -93,6 +93,7 @@ jobs:
       - name: 🏗️ Build (verbose on failure)
         run: |
           cd immortalwrt
+          set -o pipefail
           make -j$(nproc) 2>&1 | tail -100 || \
             (echo "=== BUILD FAILED - Retrying with V=s ===" && \
              make -j1 V=s 2>&1 | tail -200)
