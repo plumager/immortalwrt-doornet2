@@ -6,7 +6,7 @@
 
 /dts-v1/;
 #include "rk3399.dtsi"
-#include "rk3399-opp.dtsi"
+// OPP table from kernel built-in
 
 / {
 	model = "EmbedFire DoorNet2";
