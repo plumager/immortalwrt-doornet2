@@ -135,8 +135,7 @@
 
 &gmac {
 	assigned-clocks = <&cru SCLK_RMII_SRC>;
-	assigned-clock-parents = <&clkin_gmac>;
-	clock_in_out = "input";
+	clock_in_out = "output";
 	phy-supply = <&vcc3v3_sys>;
 	phy-mode = "rgmii";
 	pinctrl-names = "default";
