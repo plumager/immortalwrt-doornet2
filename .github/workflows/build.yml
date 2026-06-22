@@ -50,9 +50,12 @@ jobs:
           mkdir -p immortalwrt/target/linux/rockchip/files-6.18/arch/arm64/boot/dts/rockchip
           cp doornet2-adapt/target/linux/rockchip/files-6.18/arch/arm64/boot/dts/rockchip/* \
              immortalwrt/target/linux/rockchip/files-6.18/arch/arm64/boot/dts/rockchip/
-          # Copy image Makefile (append DoorNet2 device to existing)
-          cat doornet2-adapt/target/linux/rockchip/image/Makefile >> \
-             immortalwrt/target/linux/rockchip/image/Makefile
+          # Insert DoorNet2 device definition before BuildImage
+          chmod +x doornet2-adapt/scripts/insert-before.sh
+          doornet2-adapt/scripts/insert-before.sh \
+             immortalwrt/target/linux/rockchip/image/Makefile \
+             'include $(SUBTARGET).mk' \
+             doornet2-adapt/target/linux/rockchip/image/doornet2-device.mk
           # Copy armv8 configs
           cp doornet2-adapt/target/linux/rockchip/armv8/target.mk \
              immortalwrt/target/linux/rockchip/armv8/target.mk

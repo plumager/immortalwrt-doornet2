@@ -1,6 +1,3 @@
-# DoorNet2 device definition fragment
-# Append to target/linux/rockchip/image/Makefile
-
 define Device/embedfire_doornet2
   DEVICE_VENDOR := EmbedFire
   DEVICE_MODEL := DoorNet2
