@@ -16,6 +16,6 @@ define Device/embedfire_doornet2
   SOC := rk3399
   DEVICE_PACKAGES := kmod-r8169 -urngd
   IMAGES := sysupgrade.img.gz
-  IMAGE/sysupgrade.img.gz := boot-common | boot-script rockchip | doornet2-img | gzip | append-metadata
+  IMAGE/sysupgrade.img.gz := boot-common | boot-script | doornet2-img | gzip | append-metadata
 endef
 TARGET_DEVICES += embedfire_doornet2
